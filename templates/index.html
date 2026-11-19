@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en" data-type="software" data-radius="soft" data-buttons="solid" data-motion="on">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FDFDFD">
+  <meta name="page-type" content="software">
+  <meta name="site-kind" content="software">
+  <meta name="description" content="Find NSUT study partners, project teammates, and people who share your interests.">
+  <meta property="og:title" content="NSUT SkillSync — Campus Skill Directory">
+  <meta property="og:description" content="A campus directory for study partners and project teammates at NSUT.">
+  <title>NSUT SkillSync — Campus Skill Directory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <a class="skip-link" href="#directory">Skip to the student directory</a>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="NSUT SkillSync home"><span class="brand-symbol"><i class="ph ph-users-three"></i></span><span class="brand-copy"><strong>NSUT <b>SkillSync</b></strong><small>Campus skill directory</small></span></a>
+    <nav class="nav-actions" aria-label="Main navigation">
+      <button class="nav-button class-button" id="classToggle" type="button" aria-pressed="false"><i class="ph ph-users"></i><span>My Class Only</span><span class="switch" aria-hidden="true"></span></button>
+      <button class="nav-button" id="invitesButton" type="button"><i class="ph ph-paper-plane-tilt"></i><span>Invites</span><span class="count" id="inviteCount">0</span></button>
+      <button class="nav-button hidden" id="editButton" type="button"><i class="ph ph-pencil-simple"></i><span>Edit Profile</span></button>
+      <button class="icon-button theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark mode" title="Switch theme"><i class="ph ph-moon"></i></button>
+      <button class="button button-primary" id="authButton" type="button"><i class="ph ph-sign-in"></i><span>Log in / Register</span></button>
+      <button class="nav-button hidden" id="logoutButton" type="button"><i class="ph ph-sign-out"></i><span>Log out</span></button>
+    </nav>
+  </header>
+
+  <main id="directory" class="page-shell">
+    <section class="intro" data-enter>
+      <div class="intro-copy"><p class="eyebrow"><span class="live-dot"></span> NSUT STUDENT DIRECTORY</p>
+        <h1>Campus skills,<br><span>shared with purpose.</span></h1>
+        <p class="intro-text">Find a study partner, ask a peer for help, or bring the right people into your next project.</p>
+      </div>
+      <div class="intro-aside"><div class="member-total"><i class="ph ph-users-three"></i><strong id="studentCount">—</strong><span>students in the directory</span></div><div class="aside-rule"></div><p>Browse by class, interests, or the kind of work you want to do.</p></div>
+    </section>
+
+    <section class="directory-panel" aria-label="Browse students">
+      <div class="panel-heading"><div><p class="eyebrow">PEER DIRECTORY</p><h2>Find your next study partner</h2></div><span class="live-label"><i class="ph ph-circle"></i> Live directory</span></div>
+      <div class="filter-bar">
+        <label class="search-field"><i class="ph ph-magnifying-glass"></i><span class="sr-only">Search students</span><input id="search" type="search" placeholder="Search by skill, name, or roll number" autocomplete="off"></label>
+        <label class="filter-field"><span class="sr-only">Year</span><i class="ph ph-calendar-blank"></i><select id="yearFilter"><option value="">All years</option><option value="1">Year 1</option><option value="2">Year 2</option><option value="3">Year 3</option><option value="4">Year 4</option></select></label>
+        <label class="filter-field"><span class="sr-only">Branch</span><i class="ph ph-graduation-cap"></i><select id="branchFilter"><option value="">All branches</option><option>CSE</option><option>IT</option><option>ECE</option><option>EE</option><option>ME</option></select></label>
+        <label class="filter-field"><span class="sr-only">Section</span><i class="ph ph-users"></i><select id="sectionFilter"><option value="">All sections</option></select></label>
+        <label class="filter-field skill-filter"><span class="sr-only">Skill or interest</span><i class="ph ph-sparkle"></i><input id="skillFilter" placeholder="Any skill or interest" autocomplete="off"></label>
+        <label class="filter-field"><span class="sr-only">Proficiency</span><i class="ph ph-chart-bar-horizontal"></i><select id="levelFilter"><option value="">Any level</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></label>
+        <label class="filter-field"><span class="sr-only">Collaboration intent</span><i class="ph ph-handshake"></i><select id="intentFilter"><option value="">Any intent</option><option>Study Partner</option><option>Open to Doubts</option><option>Project Team</option></select></label>
+        <label class="match-toggle"><input id="sortMatch" type="checkbox"><span class="toggle-track"></span><span>Sort by match</span></label>
+        <button class="clear-filters" id="clearFilters" type="button"><i class="ph ph-arrow-counter-clockwise"></i> Clear filters</button>
+      </div>
+      <div class="results-row"><p id="resultSummary">Loading students…</p><p class="results-note"><i class="ph ph-info"></i> Contact details are shared by each student</p></div>
+      <div id="grid" class="student-grid" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><a class="footer-brand" href="/"><span class="brand-symbol small"><i class="ph ph-users-three"></i></span><strong>NSUT SkillSync</strong></a><span>Built for the NSUT campus community</span></footer>
+
+  <div class="scrim" id="scrim"></div>
+
+  <section class="dialog auth-dialog" id="authDialog" role="dialog" aria-modal="true" aria-labelledby="authTitle" aria-hidden="true">
+    <button class="close-button" data-close type="button" aria-label="Close dialog"><i class="ph ph-x"></i></button>
+    <p class="eyebrow">NSUT STUDENT DIRECTORY</p><h2 id="authTitle">Welcome to SkillSync</h2>
+    <div class="tabs"><button class="tab active" data-mode="login" type="button">Log in</button><button class="tab" data-mode="register" type="button">Create account</button></div>
+    <form id="authForm" novalidate>
+      <label>Roll number<input name="roll_no" required autocomplete="username" placeholder="2026UCS1724"></label>
+      <label>4-digit PIN<input name="pin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required autocomplete="current-password" placeholder="Enter your PIN"></label>
+      <div id="registerFields" class="register-fields hidden">
+        <div class="form-row"><label>Full name<input name="name" maxlength="80" autocomplete="name" placeholder="Your name"></label><label>Campus email<input name="email" type="email" autocomplete="email" placeholder="you@nsut.ac.in" required></label></div>
+        <div class="form-row"><label>Section<div class="section-choice"><select name="section" id="registerSection" required disabled><option value="">Enter a valid roll number first</option></select><span class="detected-badge" id="registerDetected" hidden></span></div></label><label>How do you want to connect?<select name="intent"><option>Study Partner</option><option>Open to Doubts</option><option>Project Team</option></select></label></div>
+        <div class="form-row"><label>WhatsApp <span class="optional">Optional · 10 digits</span><input name="whatsapp" inputmode="numeric" maxlength="10" placeholder="10-digit number"></label><label>Instagram <span class="optional">Optional</span><input name="instagram" maxlength="100" placeholder="Username (with or without @)"></label></div>
+        <div class="form-row"><label>LinkedIn <span class="optional">Optional</span><input name="linkedin" maxlength="160" placeholder="Username or profile URL"></label><label>Discord <span class="optional">Optional</span><input name="discord" maxlength="160" placeholder="Discord username"></label></div>
+        <label>GitHub <span class="optional">Optional</span><input name="github" maxlength="160" placeholder="GitHub username"></label>
+        <label>Short bio <textarea name="bio" maxlength="500" rows="3" placeholder="What are you learning, building, or practicing?"></textarea></label>
+        <div class="builder-block"><div class="builder-heading"><div><span class="field-title">Skills &amp; interests</span><span class="optional">Choose from suggestions or add your own</span></div><span class="builder-count" data-count="register">0 / 20</span></div>
+          <div class="skill-entry"><div class="skill-control"><label class="skill-input-wrap"><i class="ph ph-magnifying-glass"></i><input id="registerSkillInput" placeholder="Search or type an interest" autocomplete="off"></label><div class="skill-suggestions" id="registerSkillSuggestions" role="listbox" hidden></div></div><select id="registerSkillLevel" aria-label="Interest proficiency"><option>Beginner</option><option selected>Intermediate</option><option>Advanced</option></select><button class="add-skill" data-add-skill="register" type="button"><i class="ph ph-plus"></i> Add</button></div>
+          <div class="skill-chips" id="registerSkillChips" aria-live="polite"></div>
+        </div>
+      </div>
+      <p class="form-hint" id="authHint">Demo accounts use PIN 1234.</p><p class="form-error" id="authError" role="alert"></p>
+      <button class="button button-primary button-wide" id="authSubmit" type="submit"><i class="ph ph-sign-in"></i> Log in</button>
+    </form>
+  </section>
+
+  <section class="dialog profile-dialog" id="profileDialog" role="dialog" aria-modal="true" aria-labelledby="profileTitle" aria-hidden="true">
+    <button class="close-button" data-close type="button" aria-label="Close dialog"><i class="ph ph-x"></i></button><p class="eyebrow">YOUR PROFILE</p><h2 id="profileTitle">Edit your profile</h2>
+    <form id="profileForm" novalidate>
+      <label>Collaboration intent<select name="intent"><option>Study Partner</option><option>Open to Doubts</option><option>Project Team</option></select></label>
+      <label>Campus email<input name="email" type="email" autocomplete="email" required></label>
+      <div class="form-row"><label>WhatsApp <span class="optional">Optional · 10 digits</span><input name="whatsapp" inputmode="numeric" maxlength="10" placeholder="10-digit number"></label><label>Instagram <span class="optional">Optional</span><input name="instagram" maxlength="100" placeholder="Username (with or without @)"></label></div>
+      <div class="form-row"><label>LinkedIn <span class="optional">Optional</span><input name="linkedin" maxlength="160" placeholder="Username or profile URL"></label><label>Discord <span class="optional">Optional</span><input name="discord" maxlength="160" placeholder="Discord username"></label></div>
+      <label>GitHub <span class="optional">Optional</span><input name="github" maxlength="160" placeholder="GitHub username"></label>
+      <label>Short bio<textarea name="bio" maxlength="500" rows="3"></textarea></label>
+      <div class="builder-block"><div class="builder-heading"><div><span class="field-title">Skills &amp; interests</span><span class="optional">Choose from suggestions or add your own</span></div><span class="builder-count" data-count="profile">0 / 20</span></div>
+        <div class="skill-entry"><div class="skill-control"><label class="skill-input-wrap"><i class="ph ph-magnifying-glass"></i><input id="profileSkillInput" placeholder="Search or type an interest" autocomplete="off"></label><div class="skill-suggestions" id="profileSkillSuggestions" role="listbox" hidden></div></div><select id="profileSkillLevel" aria-label="Interest proficiency"><option>Beginner</option><option selected>Intermediate</option><option>Advanced</option></select><button class="add-skill" data-add-skill="profile" type="button"><i class="ph ph-plus"></i> Add</button></div>
+        <div class="skill-chips" id="profileSkillChips" aria-live="polite"></div>
+      </div>
+      <p class="form-error" id="profileError" role="alert"></p><button class="button button-primary button-wide" type="submit"><i class="ph ph-floppy-disk"></i> Save profile</button>
+    </form>
+  </section>
+
+  <aside class="drawer" id="inviteDrawer" aria-label="Study invites" aria-hidden="true"><div class="drawer-head"><div><p class="eyebrow">YOUR NETWORK</p><h2>Study invites</h2></div><button class="close-button" data-close type="button" aria-label="Close invites"><i class="ph ph-x"></i></button></div><div class="tabs"><button class="tab active" data-invite-tab="received" type="button">Received</button><button class="tab" data-invite-tab="sent" type="button">Sent</button></div><div id="inviteList"></div></aside>
+
+  <div class="squad-bar" id="squadBar"><div class="squad-label"><span class="squad-icon"><i class="ph ph-users-three"></i></span><div><strong id="selectedCount">0 peers selected</strong><small>Invite a focused study group</small></div></div><label class="squad-field"><span class="sr-only">Study or project topic</span><input id="groupTopic" maxlength="120" placeholder="Study / project topic"></label><label class="squad-field"><span class="sr-only">Short note</span><input id="groupMessage" maxlength="500" placeholder="Add a short note"></label><button class="button button-primary" id="sendInvite" type="button"><i class="ph ph-paper-plane-tilt"></i> Send invite</button><button class="button button-secondary hidden" id="emailLink" type="button"><i class="ph ph-envelope-simple"></i> Open in Email</button><button class="squad-clear" id="clearSelection" type="button" aria-label="Clear selection"><i class="ph ph-x"></i></button></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

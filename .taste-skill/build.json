@@ -1,0 +1,11 @@
+{
+ "page": "index.html",
+ "url": null,
+ "root": null,
+ "kind": "software",
+ "category": "NSUT campus skill and study directory",
+ "primary": "Find a study partner",
+ "rounds": 3,
+ "start": "2026-11-19T07:33:28.515Z",
+ "by": "gate.mjs --start"
+}
